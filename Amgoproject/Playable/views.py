@@ -4,7 +4,7 @@ from rest_framework import status
 from django.shortcuts import get_object_or_404
 from .models import Project, Asset, Job
 from .serializers import ProjectSerializer, AssetSerializer, JobSerializer, AnalyticsEventSerializer
-
+from datetime import timedelta
 import django_rq
 from .tasks import render_job_function
 
@@ -31,9 +31,9 @@ class RenderJobEnqueueView(APIView):
     def post(self, request, id):
         project = get_object_or_404(Project, id=id)
         job = Job.objects.create(project=project, status='pending')
-        # enqueue task
+
         queue = django_rq.get_queue('default')
-        queue.enqueue(render_job_function, job.id)
+        queue.enqueue_in(timedelta(seconds=10), render_job_function, job.id)
         return Response(JobSerializer(job).data, status=status.HTTP_201_CREATED)
 
 class JobStatusView(APIView):
