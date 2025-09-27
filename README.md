@@ -24,5 +24,7 @@ To stop Docker containers:
 To deactivate the virtual environment:
     deactivate
     
-   
+
+To run Queue use this command
+          python manage.py rqworker --with-scheduler default
       
