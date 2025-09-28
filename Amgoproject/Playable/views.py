@@ -7,8 +7,16 @@ from .serializers import ProjectSerializer, AssetSerializer, JobSerializer, Anal
 from datetime import timedelta
 import django_rq
 from .tasks import render_job_function
+from rest_framework.permissions import IsAuthenticated
+from drf_yasg.utils import swagger_auto_schema
 
 class ProjectCreateView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @swagger_auto_schema(
+        request_body=ProjectSerializer,
+        responses={201: ProjectSerializer}
+    )
     def post(self, request):
         serializer = ProjectSerializer(data=request.data)
         if serializer.is_valid():
@@ -17,6 +25,12 @@ class ProjectCreateView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class AssetUploadView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @swagger_auto_schema(
+        request_body=AssetSerializer,
+        responses={201: AssetSerializer}
+    )
     def post(self, request, id):
         project = get_object_or_404(Project, id=id)
         uploaded_file = request.FILES.get('file')
@@ -28,6 +42,7 @@ class AssetUploadView(APIView):
 
 
 class RenderJobEnqueueView(APIView):
+    permission_classes = [IsAuthenticated]
     def post(self, request, id):
         project = get_object_or_404(Project, id=id)
         job = Job.objects.create(project=project, status='pending')
@@ -37,12 +52,14 @@ class RenderJobEnqueueView(APIView):
         return Response(JobSerializer(job).data, status=status.HTTP_201_CREATED)
 
 class JobStatusView(APIView):
+    permission_classes = [IsAuthenticated]
     def get(self, request, id):
         job = get_object_or_404(Job, id=id)
         return Response(JobSerializer(job).data)
 
 
 class AnalyticsEventView(APIView):
+    permission_classes = [IsAuthenticated]
     def post(self, request):
         serializer = AnalyticsEventSerializer(data=request.data)
         if serializer.is_valid():
