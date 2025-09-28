@@ -52,4 +52,15 @@ FFmpeg is required for video processing in this project. Follow the instructions
 To run Queue use this command
 
           python manage.py rqworker --with-scheduler default
+
+To create a user open shell
+
+      python manage.py shell
+
+      User.objects.create(email=test_mail)
+      p=User.objects.get(id=id)
+      p.is_superuser=True
+      p.is_staff=True
+      p.set_password=password
+      p.save()
       
